@@ -30,3 +30,44 @@ def fetch_nipost_tracking(tracking_id: str):
         }
     except Exception as e:
         return {"error": str(e)}
+
+
+# services/nipost_service.py
+
+from fastapi import HTTPException
+
+# Mock NiPost data
+fake_nipost_data = {
+    "NIPOST987654321": {
+        "tracking_id": "NIPOST987654321",
+        "carrier": "NiPost",
+        "status": "Delivered",
+        "last_update": "2025-09-13T14:15:00Z",
+        "origin": {"city": "Ibadan", "country": "Nigeria"},
+        "destination": {"city": "Port Harcourt", "country": "Nigeria"},
+        "estimated_delivery": "2025-09-13T14:00:00Z",
+        "events": [
+            {
+                "date": "2025-09-11T09:10:00Z",
+                "location": "Ibadan Office",
+                "status": "Parcel accepted",
+            },
+            {
+                "date": "2025-09-12T12:00:00Z",
+                "location": "Enugu Transit",
+                "status": "In transit",
+            },
+            {
+                "date": "2025-09-13T14:15:00Z",
+                "location": "Port Harcourt Office",
+                "status": "Delivered to recipient",
+            },
+        ],
+    }
+}
+
+
+# def get_nipost_tracking(tracking_id: str):
+#     if tracking_id in fake_nipost_data:
+#         return fake_nipost_data[tracking_id]
+#     raise HTTPException(status_code=404, detail="NiPost tracking ID not found")

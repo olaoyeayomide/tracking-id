@@ -18,6 +18,9 @@ class TrackingEvent(Base):
     shipment = relationship("Shipment", back_populates="events")
     location = relationship("Location", back_populates="events")
 
+    def __repr__(self):
+        return f"<TrackingEvent {self.status} at {self.location_id}"
+
 
 # Every update for a shipment (scanned at Lagos hub, departed warehouse).
 

@@ -1,2 +1,4 @@
 .env
+.env.test
 .project_structure.md
+.note.md

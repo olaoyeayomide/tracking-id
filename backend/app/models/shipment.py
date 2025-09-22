@@ -26,6 +26,9 @@ class Shipment(Base):
     events = relationship("TrackingEvent", back_populates="shipment")
     notifications = relationship("Notification", back_populates="shipment")
 
+    def __repr__(self):
+        return f"<Shipment(id={self.shipment_id}, tracking_id={self.carrier_tracking_id}, status={self.status})>"
+
 
 # This is the core table 🏆.
 

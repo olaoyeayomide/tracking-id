@@ -1,26 +1,48 @@
-import requests
-from datetime import datetime
+from app.services.carrier_connector.base import CarrierAdapter
+from typing import Dict, Any
 
 
-# Example function to fetch tracking info from GIG API
-def fetch_gig_tracking(tracking_id: str):
-    """
-    Simulates fetching tracking data from GIG API.
-    Replace `api_url` with real GIG endpoint when available.
-    """
-    api_url = f"https://gig-logistics-api.com/track/{tracking_id}"
-    try:
-        response = requests.get(api_url, timeout=10)
-        response.raise_for_status()
-        data = response.json()
+class GigConnector(CarrierAdapter):
+    name = "gig"
 
-        # Normalize response
+    def __init__(self, meta: dict | None = None):
+        self.meta = meta
+
+    async def fetch_by_api(self, tracking_id: str) -> Dict[str, Any]:
+        # placeholder for API fetch
         return {
-            "carrier": "GIG Logistics",
+            "status": "in_transit",
+            "location": "Port Harcourt",
             "tracking_id": tracking_id,
-            "status": data.get("current_status", "Unknown"),
-            "location": data.get("current_location", "Unknown"),
-            "timestamp": datetime.utcnow().isoformat(),
         }
-    except Exception as e:
-        return {"error": str(e)}
+
+    async def fetch_by_webhook(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        # placeholder for webhook push payload
+        return {
+            "status": payload.get("status", "unknown"),
+            "location": payload.get("location", "unknown"),
+            "tracking_id": payload.get("tracking_id", "unknown"),
+        }
+
+    async def fetch_by_scraper(self, tracking_id: str) -> Dict[str, Any]:
+        # placeholder for scraper
+        return {
+            "status": "pending",
+            "location": "scraper-location",
+            "tracking_id": tracking_id,
+        }
+
+    def normalize(self, raw_payload: dict) -> dict:
+        """
+        Normalize Sendbox API response or test payload into TrackingResponse format.
+        """
+        return {
+            "status": raw_payload.get("status", "unknown"),
+            "location": raw_payload.get("location", "unknown"),
+            "tracking_id": raw_payload.get("tracking_id", "N/A"),
+            "carrier": self.name,
+        }
+
+    def track(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        """For internal tracking endpoint test"""
+        return self.normalize(payload)
