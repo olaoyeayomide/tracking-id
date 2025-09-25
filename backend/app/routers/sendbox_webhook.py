@@ -17,7 +17,7 @@ class SendboxWebhookPayload(BaseModel):
 
 
 # ✅ Webhook endpoint
-@router.post("/webhooks/sendbox")
+@router.post("/sendbox")
 async def sendbox_webhook(payload: SendboxWebhookPayload):
     # just echo it back for now (simulating Sendbox)
     return {"status": "success", "data": payload.dict()}
