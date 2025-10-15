@@ -14,7 +14,10 @@ class TrackingEvent(Base):
     location_id = Column(Integer, ForeignKey("location.location_id"))
     status = Column(String(50), nullable=False)
     timestamp = Column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        onupdate=func.now(),
     )
     raw_payload = Column(JSON, nullable=True)
 

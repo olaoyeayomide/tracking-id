@@ -1,3 +1,4 @@
+from app.database.connection import Base
 from .user import User
 from .carrier import Carrier
 from .shipment import Shipment

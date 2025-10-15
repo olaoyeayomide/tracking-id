@@ -4,41 +4,40 @@ from typing import List
 from sqlalchemy.orm import Session
 from app.database.connection import db_dependency
 from app.services.carrier_connector.registry import get_connector
+from app.services.carrier_connector.normalizer import normalize_payload
 from app.crud.tracking_event import create_tracking_event, get_events_by_tracking_id
-from app.schemas.tracking_event import TrackingEventCreate, TrackingEventResponse
+from app.schemas.sendbox import SendboxWebhookPayload
+from app.schemas.tracking_event import TrackingEventResponse, TrackingEventResponseList
 
 router = APIRouter(prefix="/api/webhooks", tags=["Webhooks"])
 
 
-@router.post("/webhooks/{carrier_code}", response_model=TrackingEventResponse)
-async def receive_webhook(carrier_code: str, request: Request, db: db_dependency):
-    payload = await request.json()
+@router.post("/sendbox", response_model=TrackingEventResponse)
+def receive_webhook(payload: SendboxWebhookPayload, db: db_dependency):
+    # normalize payload from sendbox
+    normalized = normalize_payload(payload.model_dump(), carrier="sendbox")
 
-    try:
-        connector = get_connector(carrier_code)
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail="Unsupported carrier") from exc
+    # save to DB
+    db_event = create_tracking_event(db, normalized)
 
-    # Normalize payload
-    normalized = connector.normalize(payload)
-
-    # Persist event
-    event_data = TrackingEventCreate(
-        carrier_code=carrier_code.upper(),
-        tracking_id=normalized["tracking_id"],
-        status=normalized["status"],
-        location=normalized.get("location"),
-        raw_payload=payload,
-    )
-    saved_event = create_tracking_event(db, event_data)
-    return saved_event
+    return TrackingEventResponse.model_validate(db_event)
 
 
-@router.get("/webhook/{tracking_id}", response_model=List[TrackingEventResponse])
+@router.get("/{tracking_id}", response_model=TrackingEventResponseList)
 def get_tracking_events(tracking_id: str, db: db_dependency):
+    """
+    Fetch all tracking events for a given tracking_id.
+    """
     events = get_events_by_tracking_id(db, tracking_id)
     if not events:
         raise HTTPException(
             status_code=404, detail="No events found for this tracking ID"
         )
-    return events
+
+    return TrackingEventResponseList(
+        tracking_id=tracking_id,
+        events=[
+            TrackingEventResponse.model_validate(e, from_attributes=True)
+            for e in events
+        ],
+    )

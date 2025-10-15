@@ -1,26 +1,8 @@
-# api/track.py
-
-# from fastapi import APIRouter
-# from app.services.carrier_connector.sendbox import get_sendbox_tracking
-# from app.services.carrier_connector.nipost import get_nipost_tracking
-
-# router = APIRouter()
-
-
-# @router.get("/track/{tracking_id}")
-# async def track_shipment(tracking_id: str):
-#     if tracking_id.startswith("SBOX"):
-#         return get_sendbox_tracking(tracking_id)
-#     elif tracking_id.startswith("NIPOST"):
-#         return get_nipost_tracking(tracking_id)
-#     return {"detail": "Unsupported carrier"}
-
-# api/track.py
-
 from fastapi import APIRouter, HTTPException
 from app.schemas.tracking_schema import TrackingResponse, TrackingRequest
 from app.services.carrier_connector.normalizer import normalize_from_carrier
 from app.services.carrier_connector.registry import get_connector
+from app.services.carrier_connector.gig import get_gig_status
 
 
 # router = APIRouter()
@@ -39,3 +21,8 @@ def track_package(carrier_code: str, payload: TrackingRequest):
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/track/gig/{tracking_id}")
+async def track_gig(tracking_id: str):
+    return await get_gig_status(tracking_id)

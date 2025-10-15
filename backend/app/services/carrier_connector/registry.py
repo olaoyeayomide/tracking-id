@@ -1,9 +1,10 @@
 from app.services.carrier_connector.sendbox import SendboxConnector
-from app.services.carrier_connector.gig import GigConnector
+
+# from app.services.carrier_connector.gig import GigConnector
 
 CONNECTORS = {
     "SENDBOX": SendboxConnector,
-    "GIG": GigConnector,
+    # "GIG": GigConnector,
 }
 
 
