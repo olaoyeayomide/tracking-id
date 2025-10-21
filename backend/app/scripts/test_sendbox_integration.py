@@ -106,7 +106,7 @@ def test_sendbox_connector():
 
 
 def test_sendbox_normalization():
-    """ "Test Sendbox data normalization with mock data"""
+    """Tests how raw Sendbox API responses are transformed into your internal data format (universal tracking schema)"""
     print("\nTesting Sendbox Data Normalization")
     print("=" * 40)
 
